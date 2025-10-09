@@ -169,3 +169,50 @@ e[a].push_back(edge(a,b,c));//把边（a，b）存到节点a的邻接表中
 //遍历节点u的所有邻居
 for(int i=0;i<e[u].size();i++){
     int 
+//新写的详细版链式前向星
+#include<iostream>
+#include<vector>
+using namespace std;
+//head[0 0 0 0]头边号：如果是0则没有边了
+//     0 1 2 3 点号
+//next[       ]下一条边号
+//              边号
+//to  [       ]去往的点
+//              边号
+//1->3 一号边 cnt++
+//4->3 二号边 cnt++
+//2->4 三号边 cnt++
+//1->2 四号边 cnt++
+//1->4 五号边 cnt++
+//head[0 5 3 0 2]头边号：如果是0则没有边了
+//     0 1 2 3 4 点号
+//next[  0 0 0 1 4]下一条边号
+//       1 2 3 4 5 边号
+//to  [  3 3 4 2 4]去往的点
+//       1 2 3 4 5 边号
+//1号->5号->4号->1号->0号
+//weight[      ]权重
+//              编号
+int maxn=11;//点的最大数量
+int maxm=22;//无向图边的数量是点的两倍
+//建图
+int head[maxn];
+int next[maxm],to[maxm],weight[maxm];
+int cnt;//边号
+void addEdge(int u,int v,int w){
+	next[cnt]=head[u];//现在的边的下一条边是老头部
+	to[cnt]=v;//现在这一条边去往v点
+	weight[cnt]=w;//现在这一条边的权重是w
+	head[u]=cnt++;//u点头部的边就是cnt，然后让cnt++
+}
+int main()
+{
+	//链式前向星清空
+	cnt=1;
+	memset(head,0,sizeof(head));
+	for(int i=1;i<=n;i++){
+		for(int ei=head[i];ei>0;ei=next[ei]){
+			cout<<to[ei]<<" "<<weight[ei]<<endl;
+		}
+	}
+}
