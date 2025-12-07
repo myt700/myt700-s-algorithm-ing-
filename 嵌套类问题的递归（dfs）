@@ -59,6 +59,28 @@ pubic:
     return compute(num,op);
   }
 反正核心思路就是这样，后面我就懒得写了
+要是代码写成这样，那我就想写了哈哈哈：
+int f(const string& s,int& idx) {
+    vector<int> nums;
+    char op = '+';
+    int num = 0;
+    while (idx < s.size() && s[idx]!=')') {
+        char c = s[idx];idx++;
+        if (isdigit(c)) {
+            num = num*10+(c-'0');
+        }else if (c == '(') {
+            num = f(s,idx);
+        }else {
+            if (op == '+') nums.push_back(num);
+            else if (op == '-') nums.push_back(-num);
+            else if (op == '*') nums.back() *= num;
+            else if (op == '/') nums.back() /= num;
+            op = c;
+            num = 0;
+        }
+    }
+}
+下播！
 嵌套类问题的解题思路：
 1.定义全局变量：where
 2.递归函数f(i)：从i位置出发，遇到题目隐含终止条件或嵌套终止条件就返回
