@@ -1,0 +1,66 @@
+1.请写一个整数计算器，支持加减乘三种运算和括号。
+题解：这道题有两个关键：一个是数字不只是一位数，怎么把数字变成几位数；第二个是计算过程，需要用两个栈来存数字和符号
+核心思想：1.表达式的顺序如何表示：栈的思想：先进后出：可以用来处理优先级的问题
+2.计数怎么计：cur=cur*10+s[i]-'0'，思想就是数学原理我需要在末尾加上一个数，那我就需要把前面的*10，就等于向左移动一位
+
+那如果有了括号呢？我就很难按优先级顺序去除了！但是在括号内：我可以按照原来的顺序执行了！
+所以就是一个嵌套！
+那怎么样知道自己在哪里返回呢？是不是就要有一个全局变量来告诉嵌套在哪里返回，所以就有了全局变量where
+“我到了一个位置，需要开始一个嵌套，我就在那等着嵌套返回我需要的值”
+所以刚开始说的东西其实就是我所有嵌套的子过程
+那么我刚开始就应该就只写一个大过程，再去实现每个小过程
+因为代码不会写，所以我再详细写一下：
+总的思路如上所述
+
+代码实现：
+class Solution{
+pubic:
+  int compute(const vector<int> &num,const vecotr<char> &op){
+    int n = num.size();
+    int ans = num[0];
+    for(int i=1;i<n;i++){
+      ans+=ops[i-1]=='+' ? num[i] : -num[i];
+  }
+  return ans;
+  }
+  void push(vector<int> &num,vector<char> &op,int cur,char op){
+    int n = num.size();
+    if(n == 0 || op[n-1]=='+'||op[n-1]=='-'){
+      num.push_back(cur);
+      op.push_back(op);
+    }else{
+      int top = num[n-1];
+      chart topop = op[n-1];
+      if(topop == '*'){
+        num[n-1] == top * cur;
+      }else{
+        num[n-1] = top / cur;
+      }
+      op[n-1] = op;
+    }
+  }
+  int f(const string& s,int i){
+    int cur = 0;
+    vector<int> num;
+    vectort<char> op;
+    while(i<s.size() && s[i]!= ")"){
+      if(s[i]>='0'&&s[i] <= '9'){
+        cur+=cur*10+s[i]-'0';
+      }else if(s[i]!='('){
+        push(num,op,cur,s[i]);i++;
+        cur=0;
+      }else{
+        f(s,i+1);
+        i=where+1;
+      }
+    }
+    push(num,op,cur,'+');
+    where = i;
+    return compute(num,op);
+  }
+反正核心思路就是这样，后面我就懒得写了
+嵌套类问题的解题思路：
+1.定义全局变量：where
+2.递归函数f(i)：从i位置出发，遇到题目隐含终止条件或嵌套终止条件就返回
+3.返回值f（i）就是这一段的结果
+4.f（i）返回前要更新全局where的结果，让上级函数知道where解析到什么位置
