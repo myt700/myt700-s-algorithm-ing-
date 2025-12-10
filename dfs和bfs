@@ -1,0 +1,53 @@
+搞了几天这个，因为之前一直搞不懂，现在也不嫩说完全懂吧，先把自己的一些理解记一下
+其实我觉得BFS比较容易写代码，先说一下具体的差别吧
+有的题目只是搜索的话BFS和DFS其实都可以（数据比较水的话）
+但是通常来说感觉BFS能解决更多问题，而且更好设计
+DSF：一条路走到底；BFS：一层一层的走
+这就决定了BFS可以用来解决最短路的问题，目前我的目标是能把这些代码正确写出来即可，虽然学了一些DP
+拿几道板子题来做笔记吧
+https://www.lanqiao.cn/problems/178/learning/
+这个就是一个判断联通性的问题，其实就是最好写的搜索
+#include<bits/stdc++.h>
+using namespace std;
+const int N=1010;
+char mp[N][N];
+int vis[N][N];
+queue<pair<int,int>> q;//记录横纵坐标
+int moves[4][2]= {{1,0},{-1,0},{0,1},{0,-1}};
+int flag,ans;
+void bfs(int a,int b) {
+    vis[a][b]=1;
+    q.push({a,b});
+    while (!q.empty()) {
+        pair<int,int> now = q.front();q.pop();
+        int x=now.first,y=now.second;
+        if (mp[x+1][y]=='#'&&mp[x-1][y]=='#'&&mp[x][y+1]=='#'&&mp[x][y-1]=='#') {
+            flag = 1;
+        }
+        for (int i=0;i<4;i++) {
+            int nx = x + moves[i][0],ny = y + moves[i][1];
+            if (vis[nx][ny]==0&&mp[nx][ny]=='#') {
+                vis[nx][ny]=1;
+                q.push({nx,ny});//这个就是和dfs不同的地方，dfs是继续递归，但是bfs是加入队列，方便吧哈哈哈
+            }
+        }
+    }
+}
+int main() {
+    int n;cin>>n;
+    for (int i=1;i<=n;i++) {
+        for (int j=1;j<=n;j++) {
+            cin>>mp[i][j];
+        }
+    }
+    for (int i=1;i<=n;i++) {
+        for (int j=1;j<=n;j++) {
+            if (mp[i][j]=='#'&&vis[i][j]==0) {
+                flag = 0;
+                bfs(i,j);
+                if (flag==0) ans++;
+            }
+        }
+    }
+    cout << ans <<endl;
+}
