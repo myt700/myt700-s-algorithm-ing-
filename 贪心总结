@@ -1,0 +1,47 @@
+贪心思路的总结：
+贪心不需要证明，只需要积累，然后猜
+贪心+排序
+
+https://leetcode.cn/problems/largest-number/
+给一堆字符串，要求字符串组合起来的字典序最小
+如果 ab <= ba 那就ab
+如果 ab > ba 那就ba
+class Solution {
+public:
+    string largestNumber(vector<int>& nums) {
+        int n = nums.size();
+        vector<string> s(n);
+        for(int i = 0;i < n; i++){
+            s[i] = to_string(nums[i]);
+        }
+        sort(s.begin(),s.end(),[](const string& a,const string& b){
+            return (a + b) > (b + a);
+        });
+        if(s[0] == "0"){
+            return "0";
+        }
+        string ans = "";
+        for(auto x : s){
+            ans += x;
+        }
+        return ans;
+    }
+};
+
+https://leetcode.cn/problems/two-city-scheduling/
+多个费用：按哪个费用排序？
+假设刚开始都用第一种费用
+那这样的话换到其他费用的代价就是：其他费用-第一种费用
+然后就按代价费用排序
+
+吃掉n个橘子的最少天数
+能凑整倍数就凑整倍数
+那至于凑哪种，就看哪种更小
+
+贪心+堆
+
+找最大重合子段
+用堆来做
+
+课程表问题
+
