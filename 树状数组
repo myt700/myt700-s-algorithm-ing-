@@ -184,3 +184,60 @@ signed main(){
     }
     return 0;
 }
+
+二维数组上单点增加，范围查询 
+https://leetcode.cn/problems/range-sum-query-2d-mutable/
+
+二维数组上的范围增加，范围查询
+https://www.luogu.com.cn/problem/P4514
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 2050;
+int t1[maxn][maxn],t2[maxn][maxn],t3[maxn][maxn],t4[maxn][maxn];
+#define lowbit(x) ((x) & (-x))
+int n,m;
+void update(int x,int y,int v){
+    for(int i = x;i <= n; i += lowbit(i)){
+        for(int j = y;j <= m; j += lowbit(j)){
+            t1[i][j] += v;
+            t2[i][j] += x*v;
+            t3[i][j] += y*v;
+            t4[i][j] += x*y*v;
+        }
+    }
+}
+void add(int a,int b,int c,int d,int v){
+    update(a,b,v);
+    update(c + 1,d + 1,v);
+    update(a,d + 1,-v);
+    update(c + 1,b,-v);
+}
+int sum(int x,int y){
+    int ans = 0;
+    for(int i = x;i > 0;i -= lowbit(i)){
+        for(int j = y;j > 0; j -= lowbit(j)){
+            ans += (x + 1) * (y + 1) * t1[i][j] - (y + 1) * t2[i][j] - (x + 1) * t3[i][j] + t4[i][j]; 
+        }
+    }
+    return ans;
+}
+int range(int a,int b,int c,int d){
+    return sum(c,d) - sum(a-1,d) - sum(c,b-1) + sum(a-1,b-1);
+}
+int main(){
+    char meiyong;
+    cin >> meiyong >> n >> m;
+    char op;
+    int a,b,c,d,v;
+    while(cin >> op){
+        if(op == 'L'){
+            cin >> a >> b >> c >> d >> v;
+            add(a,b,c,d,v);
+        }else if(op == 'k'){
+            cin >> a >> b >> c >> d;
+            cout << range(a,b,c,d) << "\n";
+        }
+    }
+    return 0;
+}
+先写这么多吧
