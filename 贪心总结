@@ -213,3 +213,44 @@ int main(){
     return 0;
 }
 很简单的队的应用
+
+只要能加速代码的求解就叫贪心
+https://leetcode.cn/problems/jian-sheng-zi-ii-lcof/
+const int MOD = 1000000007;
+// 快速幂，求余数
+// 求x的n次方，最终得到的结果 % mod
+long long power(long long x, int n, int mod) {
+    long long ans = 1;
+    while (n > 0) {
+        if (n & 1) {
+            ans = (ans * x) % mod;
+        }
+        x = (x * x) % mod;
+        n >>= 1;
+    }
+    return ans;
+}
+
+int cuttingBamboo(int n) {
+    if (n == 2) {
+        return 1;
+    }
+    if (n == 3) {
+        return 2;
+    }
+    int mod = 1000000007;
+    // n = 4  -> 2 * 2
+    // n = 5  -> 3 * 2
+    // n = 6  -> 3 * 3
+    // n = 7  -> 3 * 2 * 2
+    // n = 8  -> 3 * 3 * 2
+    // n = 9  -> 3 * 3 * 3
+    // n = 10 -> 3 * 3 * 2 * 2
+    // n = 11 -> 3 * 3 * 3 * 2
+    // n = 12 -> 3 * 3 * 3 * 3
+	// 计算2的个数
+    int tail = n % 3 == 0 ? 1 : (n % 3 == 1 ? 4 : 2);
+	// 计算3的个数
+    int power = (tail == 1 ? n : (n - tail)) / 3;
+    return (int)(power(3, power, mod) * tail % mod);
+}
