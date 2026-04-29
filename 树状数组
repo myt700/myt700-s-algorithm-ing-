@@ -115,3 +115,72 @@ int main(){
     }
     return 0;
 }
+
+3.区间修改 + 区间查询
+query(l,r) [l,r]累加和
+query(k) (1 - k)的sum
+其实就是推公式
+两块信息拼起来
+https://www.luogu.com.cn/problem/P3372
+没啥好说的，全开ll就对了
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+const int maxn = 1e5 + 5;
+#define lowbit(x) ((x) & (-x))
+#define ll long long
+ll tree1[maxn],tree2[maxn];
+ll n;
+void update1(ll x,ll v){
+    while(x <= n){
+        tree1[x] += v;
+        x += lowbit(x);
+    }
+}
+void update2(ll x,ll v){
+    while(x <= n){
+        tree2[x] += v;
+        x += lowbit(x);
+    }
+}
+ll sum1(ll x){
+    ll ans = 0;
+    while(x > 0){
+        ans += tree1[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+ll sum2(ll x){
+    ll ans = 0;
+    while(x > 0){
+        ans += tree2[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+signed main(){
+    int m;
+    cin >> n >> m;
+    for(ll i = 1;i <= n; i++){
+        ll x; cin >> x;
+        update1(i, x);
+        update1(i+1, -x);
+        update2(i, x*(i-1));
+        update2(i+1, -x*(i));
+    }
+    while(m--){
+        int op; cin >> op;
+        if(op == 1){
+            int l,r,x; cin >> l >> r >> x;
+            update1(l,x);
+            update1(r+1,-x);
+            update2(l,x*(l-1));
+            update2(r+1,-x*(r));
+        }else{
+            int l,r; cin >> l >> r;
+            cout << r * sum1(r) - (l - 1) * sum1(l-1) - sum2(r) + sum2(l - 1) << "\n";
+        }
+    }
+    return 0;
+}
