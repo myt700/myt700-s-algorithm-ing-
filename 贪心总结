@@ -100,6 +100,34 @@ int minMeetingRooms(vector<vector<int>>& meeting){
 	}
 	return ans;
 }
+还提供；另外一种做法：
+void solve(){
+    int n;cin>>n;
+    vector<pair<int,int>>v;
+    while(n--){
+        int a,b,c;
+        int d,e,f;
+        scanf("%lld:%lld:%lld",&a,&b,&c); 
+        scanf("%lld:%lld:%lld",&d,&e,&f);
+        int l=a*3600+b*60+c;
+        int r=d*3600+e*60+f;
+        v.push_back({l,r}); 
+    }    
+    sort(v.begin(),v.end());
+    int num=24*3600;
+    vector<int>all(num+1,0);
+    for(auto [u,t]:v){
+        all[u]++;
+        all[t+1]--;
+    }
+    int mx=0;
+    for(int i=0;i<=num;i++){
+        cnt+=all[i];
+        mx=max(mx,cnt);
+    }
+    cout<<mx<<"\n";
+}
+用差分，也是一个好办法
 
 课程表问题
 反悔贪心
