@@ -1,0 +1,127 @@
+由于本蒟蒻实在写不出动态规划，于是写一篇blog来总结一下
+一般来说dp有两种入手方式：
+1.先写出递归，将递归改成记忆化搜索或者位置依赖
+2.直接观察出位置依赖
+本蒟蒻目前连递归都不一定能写对（不是）
+为了总结学过的知识点，我们先从01背包入手
+https://www.luogu.com.cn/problem/P1048
+
+（在说动态规划前，先说一下它和贪心的区别：贪心是要能证明你想的局部最优一定能带来整体最优）
+（如果局部最优不一定能带来整体最优，那它大概率就是dp）
+
+下面分析一下题目：
+草药：时间 + 价值
+要求：让草药的总价值最大
+
+这个的dfs应该比较好写
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 105;
+int t[N],val[N];
+int tt,m;
+int dfs(int totalsum,int lefttime,int id){
+    // 在不超过时间的情况下能取到的最大价值
+    // 一共就两种选择：要当前的和不要，所以还需要一个编号
+    int ans = 0;
+    if(lefttime == 0 || id == m + 1){
+        return totalsum;
+    }
+    if(lefttime - t[id] >= 0){
+        ans = max(dfs(totalsum + val[id],lefttime - t[id],id + 1),dfs(totalsum,lefttime,id+1));
+    }else{
+        ans = dfs(totalsum,lefttime,id+1);
+    }
+    return ans;
+}
+int main(){
+    cin >> tt >> m;
+    for(int i = 1;i <= m; i++){
+        cin >> t[i] >> val[i];
+    }
+    cout << dfs(0,tt,1);
+    return 0;
+}
+不出意外的话就是TLE了哈哈哈
+而且万能AI发现一个问题：递归里多了 totalsum，导致不同路径即使 (id, lefttime) 相同，totalsum 不同时也会算错或降低效率。
+而且我们发现totalsum完全可以用返回值替换掉
+记忆化的前提是：状态只由(id, lefttime)决定，不能依赖于历史选择和值。
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 105;
+int t[N], val[N];
+int dp[N][1005];
+int T, m;
+
+int dfs(int id, int lefttime) {
+    if (id == m + 1 || lefttime == 0) return 0;
+    if (dp[id][lefttime] != -1) return dp[id][lefttime];
+
+    int ans = dfs(id + 1, lefttime); // 不选
+    if (lefttime >= t[id]) {
+        ans = max(ans, dfs(id + 1, lefttime - t[id]) + val[id]);
+    }
+    return dp[id][lefttime] = ans;
+}
+
+int main() {
+    cin >> T >> m;
+    for (int i = 1; i <= m; i++) {
+        cin >> t[i] >> val[i];
+    }
+    memset(dp, -1, sizeof(dp));
+    cout << dfs(1, T) << endl;
+    return 0;
+}
+这个时候就已经可以过了
+dp[i][j]:前i个物品，总容量不超过j，能获得的最大价值
+那这个定义是从哪里猜出来的呢？
+肯定有大佬说是经验，确实没错
+但是对于我这种没有经验的小白，好像只能根据dfs去猜了
+我们看dfs中有三个参数，其中一个参数是用来方便我们算答案的，所以剩下两个参数就可以用来做dp的两个参数了
+  0 1 2 3 4 5 ... m
+0
+1
+2
+t
+所以我们看dp[m][t]就是我们想要的值了
+然后根据dfs我们就可以确定转移方程了
+dp[i][j] = max(dp[i-1][j],dp[i-1][j-val[i]] + val[i])（前提是j - val[i] >= 0）
+就可以画格子依赖了
+  0 1 2 3 4 5 ... m
+0 或这些 x'
+1       x
+2
+t
+那填格子就从左往右，从上往下即可
+那第一行就是这样填
+for(int i = t[1];i <= tt; i++){
+    dp[1][i] = val[1];
+}
+完整代码如下：
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 105;
+int t[N],val[N];
+int tt,m;
+int dp[N][1005];
+int main(){
+    cin >> tt >> m;
+    for(int i = 1;i <= m; i++){
+        cin >> t[i] >> val[i];
+    }
+    for(int i = t[1];i <= tt; i++){
+        dp[1][i] = val[1];
+    }
+    for(int i = 2;i <= m; i++){
+        for(int j = 0;j <= tt; j++){
+            dp[i][j] = dp[i-1][j];
+            if(j >= t[i]){
+                dp[i][j] = max(dp[i-1][j],dp[i-1][j-t[i]] + val[i]);
+            }
+        }
+    }
+    cout << dp[m][tt];
+    return 0;
+}
+我靠
+终于学会了！
