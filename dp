@@ -1,0 +1,60 @@
+纸币问题1：https://www.luogu.com.cn/problem/P2842
+说实话，我感觉dp的设计和dfs的设计有异曲同工之妙，只不过路径不同
+先说dfs吧
+还是非常好想的
+题目如下：
+有n种纸币，面额为ai，要求凑出w元，然后每种纸币可以无限取
+你要是让我直接想dp状态转移我肯定想不到（目前来说是这样）
+但是写dfs还是可以的
+#include<bits/stdc++.h>
+using namespace std;
+int n,w;
+int dp[1005][10005];
+int a[103];
+int dfs(int id,int money){
+    // 用前id张能凑出money的最少纸币
+    if(money == 0) return 0;
+    if(id == n + 1) return 1e9;
+    // 一定要注意边界条件：既然你是从1开始搜，所以超过了不能返回0，而是要返回1e9，这样才不会影响判断
+    // 只有刚好到n-1并且money==0的时候才是真正有效的方案
+    if(dp[id][money] != -1) return dp[id][money];
+    int ans = dfs(id+1,money); // 不用id
+    if(money - a[id] >= 0){
+        ans = min(ans,dfs(id,money - a[id]) + 1); // 用id
+    }
+    dp[id][money] = ans;
+    return ans;
+}
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    memset(dp,-1,sizeof(dp));
+    cout << dfs(1,w);
+    return 0;
+}
+下面我们来改严格位置依赖的dp
+#include<bits/stdc++.h>
+using namespace std;
+int n,w;
+int dp[1005][10005];
+int a[103];
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    memset(dp,0,sizeof(dp));
+    for(int j = 0;j <= w; j++){
+        if(j % a[1] == 0) dp[1][j] = j / a[1];
+        else dp[1][j] = 1e8;
+    }
+    for(int i = 2;i <= n; i++){
+        for(int j = 1;j <= w; j++){
+            dp[i][j] = dp[i-1][j];
+            if(j - a[i] >= 0){
+                // 这里要注意：是用前i个位置凑j-a[i]然后在加上a[i]这一张，因为它可以重复的
+                dp[i][j] = min(dp[i][j],dp[i][j-a[i]] + 1);
+            }
+        }
+    }
+    cout << dp[n][w];
+    return 0;
+}
