@@ -125,3 +125,84 @@ int main(){
 再来一题
 
 纸币问题3：https://www.luogu.com.cn/problem/P2834
+我感觉写dfs和写dp一样难555
+我试试回溯三问吧，我真的不会写dfs
+当前操作？
+决定第i种纸币用几张
+子问题？
+1）不用第i种纸币：dfs(i+1,rest)
+2）用一张第i种纸币：（但是接下来还要处理第i种纸币，还能继续用）dfs(i,rest-a[i])
+下一个子问题？
+dfs(i, rest)
+    ├── 下一个子问题 1：dfs(i+1, rest)   [不用当前纸币]
+    └── 下一个子问题 2：dfs(i, rest - a[i]) [用一张当前纸币]
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 1005;
+int n,w;
+int a[N];
+int dp[N][10005];
+const int mod = 1e9 + 7;
+int dfs(int i,int rest){
+    // 从第 i 种纸币开始（可以重复使用第 i 种），凑出剩余金额 rest 的方案数。
+    if(rest == 0) return 1; // 成功凑出
+    if(i == n + 1) return 0; // 没有纸币可用，且rest > 0
+    if(dp[i][rest] != -1) return dp[i][rest];
+    int res = dfs(i+1,rest); // 不用i种纸币
+    if(rest >= a[i]){
+        res = (res + dfs(i,rest - a[i])) % mod; // 用一张第i种
+    }
+    dp[i][rest] = res;
+    return res;
+}
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    memset(dp,-1,sizeof(dp));
+    cout << dfs(1,w);
+    return 0;
+}
+ 一、DFS 函数怎么定义（4步法）
+ 第1步：问自己——我在决策什么？
+> 答：决定每种纸币用几张
+ 第2步：问自己——决策有顺序吗？
+> 答：有，按纸币种类顺序决策（从第0种到第n1种）
+ 第3步：问自己——决策时需要知道什么信息？
+> 答：
+> 1. 决策到第几种了 → int i
+> 2. 还差多少钱没凑 → int rest
+ 第4步：写出函数签名
+int dfs(int i, int rest)
+含义：用第 i 种到第 n1 种纸币，凑出 rest 元，有多少种方法
+二、为什么这样定义？理解"状态"
+状态 = 一个独一无二的局面
+这道题中，什么能唯一确定一个局面？
+ 你考虑到了第几种纸币
+ 你还剩多少钱要凑
+所以 (i, rest) 就是一个状态。
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 1005;
+int n,w;
+int a[N];
+int dp[N][10005];
+const int mod = 1e9 + 7;
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    // 初始化边界（对应DFS的边界条件）
+    for (int i = 0; i <= n; i++) dp[i][0] = 1;  // rest=0时返回1
+    // dp[n][rest>0] 默认为0，对应 i==n 返回0
+
+    // 从后往前填表（因为依赖 i+1 和 i）
+    for (int i = n; i >= 1; i--) {
+        for (int rest = 1; rest <= w; rest++) {
+            dp[i][rest] = dp[i+1][rest];           // 不用第i种
+            if (rest >= a[i]) {
+                dp[i][rest] = (dp[i][rest] + dp[i][rest - a[i]]) % mod;
+            }
+        }
+    }
+    cout << dp[1][w] << "\n";
+    return 0;
+}
