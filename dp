@@ -58,3 +58,70 @@ int main(){
     cout << dp[n][w];
     return 0;
 }
+（听说这个是完全背包）
+
+纸币问题2：https://www.luogu.com.cn/problem/P2840
+题目：和上一题不同的是：同样的纸币组合如果支付顺序不同，会被视作不同的方式
+那这个时候写dfs翻定义就不一样了
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 1e4 + 10;
+const int mod = 1e9 + 7;
+int n,w;
+int a[maxn];
+int dp[maxn];
+using ll = long long;
+int dfs(int money){
+    // 凑出money元的方式数
+    // 因为状态只依赖于当前金额 money，不依赖具体用了哪些面额（因为顺序相关，后面还可以用任何面额）
+    if(money == 0) return 1;
+    // 凑出0元有1种方式
+    if(money < 0) return 0;
+    // 金额为负数不可到达
+    if(dp[money] != -1) return dp[money];
+    ll res = 0;
+    // 枚举最后一张纸币的面额
+    for(int i = 1;i <= n; i++){
+        if(money >= a[i]){
+            res = (res + dfs(money - a[i])) % mod;
+        }
+    }
+    dp[money] = res;
+    return res;
+}
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    memset(dp,-1,sizeof(dp));
+    cout << dfs(w);
+    return 0;
+}
+// 说实话，我不太知道怎么改成dp
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 1e4 + 10;
+const int mod = 1e9 + 7;
+int n,w;
+int a[maxn];
+int dp[maxn];
+using ll = long long;
+int main(){
+    cin >> n >> w;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    memset(dp,-1,sizeof(dp));
+    dp[0] = 1;
+    for(int j = 1;j <= w; j++){
+        dp[j] = 0;
+        for(int i = 1;i <= n; i++){
+            if(j >= a[i]){
+                dp[j] = (dp[j] + dp[j - a[i]]) % mod;
+            }
+        }
+    }
+    cout << dp[w] << "\n";
+    return 0;
+}
+参考一下吧，这么一看好像也挺好改的
+再来一题
+
+纸币问题3：https://www.luogu.com.cn/problem/P2834
