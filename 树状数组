@@ -241,3 +241,49 @@ int main(){
     return 0;
 }
 先写这么多吧
+
+下面来写经典的题目
+逆序对＋离散化
+我感觉主要是思路比较巧妙
+因为逆序对的特点，我们可以从最右边出发然后找右边比它小的数，然后把它本身加入树状数组中，这样就可以维护答案区间了
+那怎么执行这个操作呢，很容易就想到树状数组，为什么呢
+因为它可以单点修改加上范围查询
+#include<bits/stdc++.h>
+using namespace std;
+#define lowbit(x) ((x) & (-x))
+int n,m;
+const int N = 5e5 + 5;
+int a[N],tree[N];
+void update(int x,int v){
+    while(x <= m){
+        tree[x] += 1;
+        x += lowbit(x);
+    }
+}
+int sum(int x){
+    int res = 0;
+    while(x >= 1){
+        res += tree[x];
+        x -= lowbit(x);
+    }
+    return res;
+}
+int main(){
+    cin >> n;
+    for(int i = 1;i <= n; i++) cin >> a[i];
+    vector<int> b(a + 1,a + 1 + n);
+    sort(b.begin(),b.end());
+    b.erase(unique(b.begin(),b.end()),b.end());
+    m = b.size();
+    for(int i = 1;i <= n; i++){
+        a[i] = lower_bound(b.begin(),b.end(),a[i]) - b.begin() + 1;
+    }
+    long long ans = 0;
+    for(int i = n;i >= 1; i--){
+        ans += sum(a[i] - 1);
+        update(a[i],1);
+    }
+    cout << ans << "\n";
+    return 0;
+}
+这个是代码
