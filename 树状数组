@@ -343,3 +343,83 @@ int main(){
     return 0;
 }
 不得不说树状数组的代码确实简单
+
+HH的项链：https://www.luogu.com.cn/problem/P1972
+我感觉有一点像滑动窗口，但是它不具有单调性，无法在断点处结算答案
+这种思路应该还是挺典型的
+你需要维护一个区间的种类
+那我们把所有区间按照r排序
+对于每一种项链，记录它最晚出现的地点，然后其他的清零
+这样就能统计个数了
+#include<bits/stdc++.h>
+using namespace std;
+const int N = 1000001;
+
+int arr[N], ans[N], mp[N], tree[N];
+array<int, 3> query[N];
+int n, m;
+
+#define lowbit(x) ((x) & (-x))
+
+void add(int x, int v) {
+    while(x <= n) {
+        tree[x] += v;
+        x += lowbit(x);
+    }
+}
+
+int sum(int x) {
+    int ans = 0;
+    while(x >= 1) {
+        ans += tree[x];
+        x -= lowbit(x);
+    }
+    return ans;
+}
+
+int range(int l, int r) {
+    return sum(r) - sum(l - 1);
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    
+    cin >> n;
+    for(int i = 1; i <= n; i++) cin >> arr[i];
+    
+    cin >> m;
+    for(int i = 1; i <= m; i++) {
+        cin >> query[i][0] >> query[i][1];
+        query[i][2] = i;
+    }
+    
+    sort(query + 1, query + m + 1, [](const array<int,3>& a, const array<int,3>& b) {
+        return a[1] < b[1];
+    });
+    
+    memset(mp, 0, sizeof(mp));
+    memset(tree, 0, sizeof(tree));
+    
+    for(int s = 1, q = 1; q <= m; q++) {
+        int r = query[q][1];
+        for(; s <= r; s++) {
+            int c = arr[s];
+            if(mp[c] != 0) {
+                add(mp[c], -1);
+            }
+            add(s, 1);
+            mp[c] = s;
+        }
+        int l = query[q][0];
+        int idx = query[q][2];
+        ans[idx] = range(l, r);
+    }
+    
+    for(int i = 1; i <= m; i++) {
+        cout << ans[i] << "\n";
+    }
+    
+    return 0;
+}
+这个题要注意比较器的写法
