@@ -1,0 +1,92 @@
+// 这个相当于倍增的板子题了
+// 一定要理解好
+#include<bits/stdc++.h>
+using namespace std;
+const int maxn = 2e5 + 5;
+struct node{
+    int id,s,e;
+};
+int st[maxn << 1][18];
+// 18 是log2（maxn）
+int log2(int x){
+    int res = 0;
+    while((1 << res) <= (x >> 1)) res++;
+    // 为了防止溢出
+    return res;
+}
+int main(){
+    int n,m; cin >> n >> m;
+    vector<node> line(2*n+1);
+    vector<int> ans(n+1);
+    for(int i = 1;i <= n; i++){
+        line[i].id = i; // 编号
+        cin >> line[i].s >> line[i].e; // 开始 - 结束
+    }
+    // <= n 最接近的2的幂，是2的几次方
+    int power = log2(n);
+    // 线段转换
+    for(int i = 1;i <= n; i++){
+        // 左边界 > 右边界 ：扩充线段
+        if(line[i].s > line[i].e) line[i].e += m;
+    }
+    // 一个一个往右边蹦 -> 排序(根据开头)
+    sort(line.begin() + 1,line.begin() + n + 1,[](const node& a,const node& b){
+        return a.s < b.s;
+    });
+    // 克隆线段
+    for(int i = 1;i <= n; i++){
+        line[i+n].id = line[i].id;
+        line[i+n].s = line[i].s + m;
+        line[i+n].e = line[i].e + m;
+    }
+    // n * 2
+    int nown = n << 1;
+    // 通过排序可以用滑动窗口来优化
+    for(int i = 1,arrive = 1;i <= nown; i++){
+        //  i的开头，结尾
+        // arrive开头 <= i线段的结尾
+        while(arrive + 1 <= nown && line[arrive+1].s <= line[i].e){
+            // 下一条线段的位置没有越界，下一条线段的开始位置 <= 此时线段的结尾 往下走
+            arrive++;
+        }
+        // i跳2的0次方布能到达的线段编号
+        st[i][0] = arrive;
+    }
+    // 倍增
+    for(int p = 1;p <= power; p++){
+        // p是2的某次方
+        for(int i = 1;i <= nown; i++){
+            // i 跳2的3次方步能到哪
+            //  先来到i跳4（2的2次方）步能到达的点，再从个点跳4步（2的2次方）
+            st[i][p] = st[st[i][p-1]][p-1];
+        }
+    }
+    for(int i = 1;i <= n; i++){
+        // 算每一个编号的答案
+        int aim = line[i].s + m,cur = i,nxt,res = 1;
+        // res已经包含当前区间
+        // aim:要到达的点
+        // cur ： 从cur起跳
+        // ans : 当前线段条数
+        for(int p = power;p >= 0; p--){
+            // 8步以内 < aim -> 获得8步
+            // >= aim -> 不获得8步
+            // 以此类推
+            // nxt : 接下来要跳的点
+            nxt = st[cur][p];
+            if(nxt != 0 && line[nxt].e < aim){
+                // 接下来要跳的点不是空点并且右边界小于你的目标
+                res += 1 << p;
+                cur = nxt;
+            }
+        }
+        // 因为我们之前算的是<aim的，所以要+1
+        // 步数+1
+        ans[line[i].id] = res+1;
+    }
+    // 区间数量包括开始和结束
+    for(int i = 1; i <= n; i++){
+        cout << ans[i] << " ";
+    }
+    return 0;
+}
